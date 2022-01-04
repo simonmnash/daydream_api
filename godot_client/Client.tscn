@@ -2,7 +2,8 @@
 
 [ext_resource path="res://Client.gd" type="Script" id=1]
 
-[node name="Client" type="TextureRect"]
+[node name="Client" type="Panel"]
+rect_min_size = Vector2( 512, 512 )
 script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -15,21 +16,29 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
-margin_right = 128.0
-margin_bottom = 128.0
-rect_min_size = Vector2( 128, 128 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
+[node name="EmbeddingGeneration" type="HBoxContainer" parent="VBoxContainer"]
+margin_right = 512.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 512, 0 )
 
-[node name="Button" type="Button" parent="VBoxContainer"]
-margin_top = 132.0
-margin_right = 128.0
-margin_bottom = 152.0
-text = "Generate Image"
-__meta__ = {
-"_edit_use_anchors_": false
-}
+[node name="Prompt" type="LineEdit" parent="VBoxContainer/EmbeddingGeneration"]
+margin_right = 200.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 200, 24 )
+text = "Rose on Fire"
+max_length = 100
 
-[connection signal="pressed" from="VBoxContainer/Button" to="." method="_on_Button_pressed"]
+[node name="GenerateEmbeddings" type="Button" parent="VBoxContainer/EmbeddingGeneration"]
+margin_left = 204.0
+margin_right = 357.0
+margin_bottom = 24.0
+text = "Generate Embeddings"
+
+[node name="HBoxContainer" type="GridContainer" parent="VBoxContainer"]
+margin_top = 28.0
+margin_right = 512.0
+margin_bottom = 284.0
+rect_min_size = Vector2( 128, 256 )
+columns = 3
+
+[connection signal="pressed" from="VBoxContainer/EmbeddingGeneration/GenerateEmbeddings" to="." method="_on_GenerateEmbeddings_pressed"]

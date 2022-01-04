@@ -13,6 +13,11 @@ config_version=4
 config/name="Godot Client"
 config/icon="res://icon.png"
 
+[display]
+
+window/size/width=512
+window/size/height=500
+
 [physics]
 
 common/enable_pause_aware_picking=true

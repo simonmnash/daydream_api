@@ -1,0 +1,11 @@
+venv*
+__pycache__
+.ipynb_checkpoints
+*.pth
+out*
+*.egg-info
+*.ini
+.import/
+export.cfg
+export_presets.cfg
+*.png
