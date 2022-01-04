@@ -56,6 +56,7 @@ def generate_model_from_prompt(data: PromptData):
 
 class GenerationData(BaseModel):
     iterations: int
+    start_from_best: bool
 
 @app.post("/generate_images")
 async def generate_images(data: GenerationData):
@@ -63,24 +64,10 @@ async def generate_images(data: GenerationData):
     return JSONResponse(content = files)
 
 
-@app.post("/uploadfile/", dependencies=[Depends(get_api_key)])
+@app.post("/uploadfile", dependencies=[Depends(get_api_key)])
 async def create_upload_file(file: UploadFile = File(...)):
-    file.filename = f"{uuid.uuid4()}.png"
+    file.filename = f"best_so_far.png"
     contents = await file.read()
     with open(f"{IMAGEDIR}{file.filename}", "wb") as f:
         f.write(contents)
     return {"filename": file.filename}
-
-
-@app.get("/")
-async def main():
-    content = """
-    <body>
-    <form action="/uploadfile/" enctype="multipart/form-data" method="post">
-    <input name='Text" type='text'>
-    <input name="file" type="file">
-    <input type="submit">
-    </form>
-    </body>
-    """
-    return HTMLResponse(content=content)

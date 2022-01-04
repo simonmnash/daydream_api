@@ -13,18 +13,13 @@ import torch
 import os
 
 DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-CUTN = 16
-CUTPOW = 1
 NORMALIZE = transforms.Normalize(mean=[0.48145466, 0.4578275, 0.40821073],
                                      std=[0.26862954, 0.26130258, 0.27577711])
-SIZEX = 128
-SIZEY = 128
-
 MODULE_DIR = Path(__file__).resolve().parent
 
 
 class MakeCutouts(nn.Module):
-    def __init__(self, cut_size, cutn, cut_pow=1.):
+    def __init__(self, cut_size, cutn, cut_pow=1):
         super().__init__()
         self.cut_size = cut_size
         self.cutn = cutn
@@ -69,20 +64,26 @@ def resize_and_center_crop(image, size):
 class VDiffusion:
     def __init__(self,
                  num_outputs=1,
-                 clip_guidance_scale=500):
+                 clip_guidance_scale=500,
+                 cutn = 16,
+                 cutpow = 1,
+                 side_x = 128,
+                 side_y = 128,
+                 init_image_path = None
+                ):
         self.device = DEVICE
-        self.cutn = CUTN
-        self.cutpow = CUTPOW
+        self.cutn = cutn
+        self.cutpow = cutpow
         self.normalize = NORMALIZE
         self.model, self.clip_model = self.load_model()
         self.make_cutouts = MakeCutouts(self.clip_model.visual.input_resolution, self.cutn, self.cutpow)
-        self.side_x = SIZEX
-        self.side_y = SIZEY
+        self.side_x = side_x
+        self.side_y = side_y
         self.num_outputs = num_outputs
         self.eta = 1
         self.clip_embed = None
         self.clip_guidance_scale = clip_guidance_scale
-        self.init_image = None
+        self.init_image = init_image_path
 
     def load_model(self, MODEL = "cc12m_1"):
         model = get_model(MODEL)()
@@ -117,7 +118,7 @@ class VDiffusion:
             batch = self.make_cutouts(TF.to_tensor(img)[None].to(self.device))
             embeds = F.normalize(self.clip_model.encode_image(NORMALIZE(batch)).float(), dim=-1)
             target_embeds.append(embeds)
-            weights.extend([weight / CUTN] * CUTN)
+            weights.extend([weight / self.cutn] * self.cutn)
         target_embeds = torch.cat(target_embeds)
         weights = torch.tensor(weights, device=self.device)
         weights /= weights.sum().abs()
