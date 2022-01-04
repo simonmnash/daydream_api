@@ -1,8 +1,8 @@
 import urllib.request
-from krita import Krita, DockWidget, DockWidgetFactoryBase, DockWidgetFactory
+from krita import Krita, DockWidget, DockWidgetFactoryBase, DockWidgetFactory, Extension
 from krita import *
 from PyQt5.QtWidgets import QWidget
-from PyQt5.QtWidgets import QPushButton, QLineEdit, QVBoxLayout
+from PyQt5.QtWidgets import QPushButton, QLineEdit, QVBoxLayout, QMessageBox, QAction
 
 APPLICATION =  Krita.instance()
 HOST = "127.0.0.1"
@@ -28,24 +28,26 @@ def write_remote_image_to_layer(name):
 
 
 
-class DaydreamClient(DockWidget):
+class DaydreamClient(Extension):
     def __init__(self, parent):
         super().__init__(parent)
 
-        self.setWindowTitle("Daydream Client")
-
-        widget = QWidget(self)
-        self.setWidget(widget)
-        layout = QVBoxLayout(widget)
-
-        prompt = QLineEdit()
-        layout.addWidget(prompt)
-
-        newButton = QPushButton("Generate") 
-        layout.addWidget(newButton)
-
-    def canvasChanged(self, canvas):
+    def setup(self):
         pass
 
+    def get_daydream(self):
+        # QMessageBox creates quick popup with information
+        messageBox = QMessageBox()        
+        messageBox.setInformativeText(APPLICATION.version())
+        messageBox.setWindowTitle('System Check')
+        messageBox.setText("Hello! Here is the version of Krita you are using.");
+        messageBox.setStandardButtons(QMessageBox.Close)
+        messageBox.setIcon(QMessageBox.Information)
+        messageBox.exec()        
 
-APPLICATION.addDockWidgetFactory(DockWidgetFactory('daydream_client', DockWidgetFactoryBase.DockRight, DaydreamClient))
+    def createActions(self, window):
+        action = window.createAction("", "Get DayDream")
+        action.triggered.connect(self.get_daydream)
+
+
+Krita.instance().addExtension(DaydreamClient(Krita.instance()))
