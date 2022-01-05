@@ -1,14 +1,20 @@
 extends TextureButton
 
 var image_url = "http://127.0.0.1:8000/files/out_00000"
-func _ready():
+var controller = null
+var scene_index = null
+
+func refresh_image():
 	var request = HTTPRequest.new()
 	add_child(request)
 	request.connect("request_completed", self, "_http_request_completed")
 	var error = request.request(image_url, ["x-api-key: BABABBABABBALLLALLLEER"])
 	if error != OK:
 		push_error("An error occured in the HTTP request.")
-		
+
+func _ready():
+	refresh_image()
+
 func _http_request_completed(result, response_code, headers, body):
 	var image = Image.new()
 	var image_error = image.load_png_from_buffer(body)

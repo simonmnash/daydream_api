@@ -68,8 +68,7 @@ class VDiffusion:
                  cutn = 16,
                  cutpow = 1,
                  side_x = 128,
-                 side_y = 128,
-                 init_image_path = None
+                 side_y = 128
                 ):
         self.device = DEVICE
         self.cutn = cutn
@@ -83,7 +82,6 @@ class VDiffusion:
         self.eta = 1
         self.clip_embed = None
         self.clip_guidance_scale = clip_guidance_scale
-        self.init_image = init_image_path
 
     def load_model(self, MODEL = "cc12m_1"):
         model = get_model(MODEL)()
@@ -146,30 +144,23 @@ class VDiffusion:
             return sampling.sample(self.model, x, steps, self.eta, extra_args)
         return sampling.cond_sample(self.model, x, steps, self.eta, extra_args, cond_fn_)
 
-    def run_all(self, steps, starting_timestamp=0, batch_size=1, output_directory=None):
+    def run_all(self, total_steps, starting_timestamp=0.9, batch_size=1, output_directory=None, init_image_path=None):
         if os.path.isdir(output_directory):
             pass
         else:
             os.mkdir(output_directory)
+
         x = torch.randn([self.num_outputs, 3, self.side_y, self.side_x], device=self.device)
-        t = torch.linspace(1, 0, steps + 1, device=self.device)[:-1]
+        t = torch.linspace(1, 0, total_steps + 1, device=self.device)[:-1]
         steps = utils.get_spliced_ddpm_cosine_schedule(t)
-        if self.init_image != None:
-            steps = steps[steps > starting_timestamp]
+        if init_image_path != None:
+            steps = steps[steps < starting_timestamp]
             alpha, sigma = utils.t_to_alpha_sigma(steps[0])
-            x = self.init_image * alpha + x * sigma
+            init_image = self.load_init_image(init_image_path)
+            x = init_image * alpha + x * sigma
         for i in trange(0, self.num_outputs, batch_size):
             cur_batch_size = min(self.num_outputs - i, batch_size)
             outs = self.run(x[i:i+cur_batch_size], steps, self.clip_embed[i:i+cur_batch_size])
             for j, out in enumerate(outs):
                 utils.to_pil_image(out).save(os.path.join(output_directory, f'out_{i + j:05}.png'))
         return os.listdir(output_directory)
-
-
-if __name__ == '__main__':
-    torch.manual_seed(101)
-    generator = VDiffusion(num_outputs=4, clip_guidance_scale=20)
-    generator.clip_embed = generator.prepare_embeddings(prompts=["Black and White", "Chess"], images=[])
-    num_steps = 5
-    generator.run_all(num_steps, batch_size=1, output_directory='/home/simon/cow2')
-

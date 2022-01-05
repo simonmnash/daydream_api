@@ -60,7 +60,10 @@ class GenerationData(BaseModel):
 
 @app.post("/generate_images")
 async def generate_images(data: GenerationData):
-    files = V_DIFFUSION_MODEL.run_all(data.iterations, 0, 1, IMAGEDIR)
+    if os.path.isfile(os.path.join(IMAGEDIR, "best_so_far.png")):
+        files = V_DIFFUSION_MODEL.run_all(data.iterations, 0.9, 1, IMAGEDIR, init_image_path=os.path.join(IMAGEDIR, "best_so_far.png"))
+    else:
+        files = V_DIFFUSION_MODEL.run_all(data.iterations, 0, 1, IMAGEDIR)
     return JSONResponse(content = files)
 
 
