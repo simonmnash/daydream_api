@@ -13,3 +13,10 @@ Currently there are three things in this repo:
 3) A not-quite-working-yet Krita plugin client.
 
 Daydream is built with the assumption that the server is being operated by the same person using the client, and that only one client will be using the server.
+
+
+### Godot client after starting, and generating 128x128 images in ~30 iterations:
+![Godot client on starting](https://github.com/simonmnash/daydream_api/blob/8f34ff5a1b4c8a9b0501c9f16a4240c85d5c9ec3/examples/early_screenshot.png)
+
+### Godot client after several rounds of the user picking a favorite 128x128 image to start from, and running ~30 iterations per round.
+![Godot client after picking lots of favorite candidates](https://github.com/simonmnash/daydream_api/blob/8f34ff5a1b4c8a9b0501c9f16a4240c85d5c9ec3/examples/late_screenshot.png)
