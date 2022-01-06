@@ -2,18 +2,19 @@ from fastapi import FastAPI, File, UploadFile, HTTPException, Security, Depends,
 from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.security.api_key import APIKeyHeader
 from vdiffusionwrapper import VDiffusion
+import config
 import uuid
 import os
+from functools import lru_cache
 from pydantic import BaseModel
+api_key_header_auth = APIKeyHeader(name='x-api-key')
 
-API_KEY = "BABABBABABBALLLALLLEER"
-API_KEY_NAME = "x-api-key"
+@lru_cache()
+def get_settings():
+    return config.Settings()
 
-V_DIFFUSION_MODEL = VDiffusion(num_outputs=1, clip_guidance_scale=0)
-api_key_header_auth = APIKeyHeader(name=API_KEY_NAME)
-
-async def get_api_key(api_key_header: str = Security(api_key_header_auth)):
-    if api_key_header != API_KEY:
+async def get_api_key(api_key_header: str = Security(api_key_header_auth), settings: config.Settings = Depends(get_settings)):
+    if api_key_header != settings.api_key:
         raise HTTPException(
             status_code= 401,
             detail="Invalid API Key",
@@ -22,6 +23,9 @@ async def get_api_key(api_key_header: str = Security(api_key_header_auth)):
         return api_key_header
 
 app = FastAPI(dependencies=[Depends(get_api_key)])
+settings = get_settings()
+app.diffusion_model = VDiffusion(num_outputs=settings.num_outputs, clip_guidance_scale=settings.clip_guidance_scale)
+
 IMAGEDIR = 'files/'
 
 
@@ -48,8 +52,8 @@ class PromptData(BaseModel):
 @app.post("/generate_embeddings")
 def generate_model_from_prompt(data: PromptData):
     prompt = data.prompt
-    V_DIFFUSION_MODEL.clip_embed = V_DIFFUSION_MODEL.prepare_embeddings(prompts=[prompt], images=[])
-    if V_DIFFUSION_MODEL.clip_embed !=None:
+    app.diffusion_model.clip_embed = app.diffusion_model.prepare_embeddings(prompts=[prompt], images=[])
+    if app.diffusion_model.clip_embed !=None:
         return {"msg": f"Generated embeddings for {prompt}"}
     else:
         return {"msg": f"Failed to generate embeddings for {prompt}"}
@@ -61,9 +65,9 @@ class GenerationData(BaseModel):
 @app.post("/generate_images")
 async def generate_images(data: GenerationData):
     if os.path.isfile(os.path.join(IMAGEDIR, "best_so_far.png")):
-        files = V_DIFFUSION_MODEL.run_all(data.iterations, 0.9, 1, IMAGEDIR, init_image_path=os.path.join(IMAGEDIR, "best_so_far.png"))
+        files = app.diffusion_model.run_all(data.iterations, 0.9, 1, IMAGEDIR, init_image_path=os.path.join(IMAGEDIR, "best_so_far.png"))
     else:
-        files = V_DIFFUSION_MODEL.run_all(data.iterations, 0, 1, IMAGEDIR)
+        files = app.diffusion_model.run_all(data.iterations, 0, 1, IMAGEDIR)
     return JSONResponse(content = files)
 
 
