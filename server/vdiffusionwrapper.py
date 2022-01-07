@@ -11,6 +11,7 @@ from torchvision.transforms import functional as TF
 from tqdm import trange
 import torch
 import os
+from io import BytesIO
 
 DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 NORMALIZE = transforms.Normalize(mean=[0.48145466, 0.4578275, 0.40821073],
@@ -96,7 +97,7 @@ class VDiffusion:
         return model, clip_model
 
     def load_init_image(self, init_image_path):
-        init = Image.open(utils.fetch(init_image_path)).convert('RGB')
+        init = Image.open(init_image_path).convert('RGB')
         init = resize_and_center_crop(init, (self.side_x, self.side_y))
         init = utils.from_pil_image(init).cuda()[None].repeat([self.num_outputs, 1, 1, 1])
         return init
@@ -164,3 +165,66 @@ class VDiffusion:
             for j, out in enumerate(outs):
                 utils.to_pil_image(out).save(os.path.join(output_directory, f'out_{i + j:05}.png'))
         return os.listdir(output_directory)
+
+    def build_on(self, starting_iterations, additional_iterations, batch_size=1, output_directory=None, init_image_path=None):
+        '''
+        Lightly modified 'run_all' to better fit the workflow I'm looking for.
+        instead of giving a total number of iterations, and a percentage complete to start at,
+        we give a number of starting and additional iterations.
+        '''
+
+        if os.path.isdir(output_directory):
+            pass
+        else:
+            os.mkdir(output_directory)
+
+        total_steps = starting_iterations + additional_iterations
+
+        x = torch.randn([self.num_outputs, 3, self.side_y, self.side_x], device=self.device)
+        t = torch.linspace(1, 0, total_steps + 1, device=self.device)[:-1]
+        steps = utils.get_spliced_ddpm_cosine_schedule(t)
+        if init_image_path != None:
+            steps = steps[starting_iterations:]
+            alpha, sigma = utils.t_to_alpha_sigma(steps[0])
+            init_image = self.load_init_image(init_image_path)
+            x = init_image * alpha + x * sigma
+        for i in trange(0, self.num_outputs, batch_size):
+            cur_batch_size = min(self.num_outputs - i, batch_size)
+            outs = self.run(x[i:i+cur_batch_size], steps, self.clip_embed[i:i+cur_batch_size])
+            for j, out in enumerate(outs):
+                utils.to_pil_image(out).save(os.path.join(output_directory, f'out_{i + j:05}.png'))
+        return os.listdir(output_directory)
+
+
+    def generation_stream(self, starting_iterations, additional_iterations, batch_size=1, output_directory=None, init_image_path=None):
+        '''
+        Lightly modified 'run_all' to better fit the workflow I'm looking for.
+        instead of giving a total number of iterations, and a percentage complete to start at,
+        we give a number of starting and additional iterations.
+        '''
+
+        if os.path.isdir(output_directory):
+            pass
+        else:
+            os.mkdir(output_directory)
+
+        total_steps = starting_iterations + additional_iterations
+
+        x = torch.randn([self.num_outputs, 3, self.side_y, self.side_x], device=self.device)
+        t = torch.linspace(1, 0, total_steps + 1, device=self.device)[:-1]
+        steps = utils.get_spliced_ddpm_cosine_schedule(t)
+        if init_image_path != None:
+            steps = steps[starting_iterations:]
+            alpha, sigma = utils.t_to_alpha_sigma(steps[0])
+            init_image = self.load_init_image(init_image_path)
+            x = init_image * alpha + x * sigma
+        for i in trange(0, self.num_outputs, batch_size):
+            cur_batch_size = min(self.num_outputs - i, batch_size)
+            outs = self.run(x[i:i+cur_batch_size], steps, self.clip_embed[i:i+cur_batch_size])
+            buffered_images = []
+            for j, out in enumerate(outs):
+                buffered = BytesIO()
+                utils.to_pil_image(out).save(buffered, format="PNG")
+                buffered_images.append(buffered)
+        return buffered_images
+

@@ -14,7 +14,7 @@ func _http_request_completed(result, response_code, headers, body):
 	queue_new_image_generation()
 
 func _images_generated(result, response_code, headers, body):
-	var RandomImageScene = load("RandomImage.tscn")
+	var RandomImageScene = load("res://HTTPClientExample/RandomImage.tscn")
 	if $MarginContainer/VBoxContainer/HBoxContainer.get_child_count() < 9:
 		var new_scene = RandomImageScene.instance()
 		new_scene.controller = self
@@ -26,7 +26,7 @@ func _images_generated(result, response_code, headers, body):
 		i = (i+1) % 9
 
 func _ready():
-	if hostname == "http://128.0.0.1":
+	if hostname == "http://127.0.0.1":
 		self.use_ssl = false
 	else:
 		self.use_ssl = true

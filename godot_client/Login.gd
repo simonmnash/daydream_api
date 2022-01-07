@@ -1,6 +1,6 @@
 extends Panel
 
-const client = preload("res://Client.tscn")
+const client = preload("res://HTTPClientExample/Client.tscn")
 
 func _ready():
 	pass # Replace with function body.

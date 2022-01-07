@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=2]
 
-[ext_resource path="res://Client.gd" type="Script" id=1]
+[ext_resource path="res://HTTPClientExample/Client.gd" type="Script" id=1]
 
 [node name="Client" type="Panel"]
 rect_min_size = Vector2( 512, 512 )
@@ -8,6 +8,9 @@ script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
+api_key = "d43a900092ff364bc6e34cb1578f9eab"
+hostname = "http://127.0.0.1"
+port = "8000"
 
 [node name="MarginContainer" type="CenterContainer" parent="."]
 margin_top = 24.0

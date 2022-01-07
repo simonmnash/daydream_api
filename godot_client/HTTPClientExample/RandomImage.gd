@@ -48,7 +48,7 @@ func _on_RandomImage_pressed():
 		"x-api-key: " + self.controller.api_key
 	]
 	var http = HTTPClient.new()
-	http.connect_to_host(self.controller.host, self.controller.port, self.controller.use_ssl)
+	http.connect_to_host(self.controller.hostname, int(self.controller.port), self.controller.use_ssl)
 
 	while http.get_status() == HTTPClient.STATUS_CONNECTING or http.get_status() == HTTPClient.STATUS_RESOLVING:
 		http.poll()
