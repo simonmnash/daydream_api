@@ -8,11 +8,12 @@ func refresh_image():
 	var request = HTTPRequest.new()
 	add_child(request)
 	request.connect("request_completed", self, "_http_request_completed")
-	var error = request.request(image_url, ["x-api-key: BABABBABABBALLLALLLEER"])
+	var error = request.request(image_url, ["x-api-key: " + self.controller.api_key])
 	if error != OK:
 		push_error("An error occured in the HTTP request.")
 
 func _ready():
+	image_url = self.controller.full_hostname + "/files/out_00000"
 	refresh_image()
 
 func _http_request_completed(result, response_code, headers, body):
@@ -44,10 +45,10 @@ func _on_RandomImage_pressed():
 
 	var headers = [
 		"Content-Type: multipart/form-data;boundary=\"WebKitFormBoundaryePkpFF7tjBAqx29L\"",
-		"x-api-key: BABABBABABBALLLALLLEER"
+		"x-api-key: " + self.controller.api_key
 	]
 	var http = HTTPClient.new()
-	http.connect_to_host("http://127.0.0.1", 8000, false)
+	http.connect_to_host(self.controller.host, self.controller.port, self.controller.use_ssl)
 
 	while http.get_status() == HTTPClient.STATUS_CONNECTING or http.get_status() == HTTPClient.STATUS_RESOLVING:
 		http.poll()

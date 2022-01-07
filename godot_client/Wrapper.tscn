@@ -1,0 +1,124 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://Login.gd" type="Script" id=1]
+
+[node name="Login" type="Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+rect_min_size = Vector2( 512, 512 )
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+margin_right = 40.0
+margin_bottom = 40.0
+rect_min_size = Vector2( 512, 512 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+margin_left = 104.0
+margin_top = 141.0
+margin_right = 408.0
+margin_bottom = 371.0
+rect_min_size = Vector2( 300, 0 )
+
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer"]
+margin_right = 304.0
+margin_bottom = 14.0
+text = "Daydream"
+
+[node name="ColorRect" type="ColorRect" parent="CenterContainer/VBoxContainer"]
+margin_top = 18.0
+margin_right = 304.0
+margin_bottom = 68.0
+rect_min_size = Vector2( 0, 50 )
+color = Color( 1, 1, 1, 0 )
+
+[node name="Host" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+margin_top = 72.0
+margin_right = 304.0
+margin_bottom = 96.0
+
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/Host"]
+margin_top = 5.0
+margin_right = 100.0
+margin_bottom = 19.0
+rect_min_size = Vector2( 100, 0 )
+text = "Hostname"
+
+[node name="Host" type="LineEdit" parent="CenterContainer/VBoxContainer/Host"]
+margin_left = 104.0
+margin_right = 304.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 200, 0 )
+align = 1
+placeholder_text = "127.0.0.1"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Port" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+margin_top = 100.0
+margin_right = 304.0
+margin_bottom = 124.0
+
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/Port"]
+margin_top = 5.0
+margin_right = 100.0
+margin_bottom = 19.0
+rect_min_size = Vector2( 100, 0 )
+text = "Port"
+
+[node name="Port" type="LineEdit" parent="CenterContainer/VBoxContainer/Port"]
+margin_left = 104.0
+margin_right = 304.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 200, 0 )
+align = 1
+max_length = 4
+placeholder_text = "8000"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Key" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+margin_top = 128.0
+margin_right = 304.0
+margin_bottom = 152.0
+
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/Key"]
+margin_top = 5.0
+margin_right = 100.0
+margin_bottom = 19.0
+rect_min_size = Vector2( 100, 0 )
+text = "Key"
+
+[node name="Key" type="LineEdit" parent="CenterContainer/VBoxContainer/Key"]
+margin_left = 104.0
+margin_right = 304.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 200, 0 )
+align = 1
+secret = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ColorRect2" type="ColorRect" parent="CenterContainer/VBoxContainer"]
+margin_top = 156.0
+margin_right = 304.0
+margin_bottom = 206.0
+rect_min_size = Vector2( 0, 50 )
+color = Color( 1, 1, 1, 0 )
+
+[node name="Connect" type="Button" parent="CenterContainer/VBoxContainer"]
+margin_top = 210.0
+margin_right = 304.0
+margin_bottom = 230.0
+text = "Connect"
+
+[connection signal="pressed" from="CenterContainer/VBoxContainer/Connect" to="." method="_on_Connect_pressed"]
