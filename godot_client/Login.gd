@@ -1,7 +1,7 @@
 extends Panel
 
 const client = preload("res://HTTPClientExample/Client.tscn")
-
+const websocket_client = preload("res://WebSocketClientExample/WebSocketClient.tscn")
 func _ready():
 	pass # Replace with function body.
 

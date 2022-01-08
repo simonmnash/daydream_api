@@ -25,17 +25,18 @@ async def get_api_key(api_key_header: str = Security(api_key_header_auth), setti
     else:
         return api_key_header
 
+async def authenticate_websocket_initial_connection(websocket: WebSocket):
+    settings = get_settings()
+    if websocket.headers['x-api-key'] == settings.api_key:
+        return True
+    else:
+        return False
+
 app = FastAPI(dependencies=[Depends(get_api_key)])
 settings = get_settings()
 app.diffusion_model = VDiffusion(num_outputs=settings.num_outputs, clip_guidance_scale=settings.clip_guidance_scale)
 app.current_iteration_count = 1
 IMAGEDIR = 'files/'
-
-
-@app.get("/listfiles/")
-async def list_files():
-    files = os.listdir(IMAGEDIR)
-    return JSONResponse(content=files)
 
 
 @app.get("/files/{file_id}")
@@ -88,17 +89,19 @@ async def health():
 
 import base64
 @app.websocket("/generation_stream")
-async def websocket_endpoint(websocket: WebSocket, dependencies=[Depends(get_api_key)]):
-    await websocket.accept()
-    while True:
-        data = await websocket.receive_text()
-        data = base64.b64decode(data)
-        input_buffer = BytesIO(data)
-        if app.diffusion_model.clip_embed == None:
-            app.diffusion_model.clip_embed = app.diffusion_model.prepare_embeddings(prompts=["Crystal Starship"], images=[])
-        else:
-            pass
-        files = app.diffusion_model.generation_stream(app.current_iteration_count, app.current_iteration_count * 2, 1, IMAGEDIR, init_image_path=input_buffer)
-        app.current_iteration_count += 1
-        text_to_send = base64.b64encode(files[0].getvalue())
-        await websocket.send_text(text_to_send)
+async def websocket_endpoint(websocket: WebSocket):
+    good_key = await authenticate_websocket_initial_connection(websocket)
+    if good_key:
+        await websocket.accept()
+        while True:
+            data = await websocket.receive_text()
+            data = base64.b64decode(data)
+            input_buffer = BytesIO(data)
+            if app.diffusion_model.clip_embed == None:
+                app.diffusion_model.clip_embed = app.diffusion_model.prepare_embeddings(prompts=["Crystal Starship"], images=[])
+            else:
+                pass
+            files = app.diffusion_model.generation_stream(app.current_iteration_count, app.current_iteration_count * 2, 1, IMAGEDIR, init_image_path=input_buffer)
+            app.current_iteration_count += 1
+            text_to_send = base64.b64encode(files[0].getvalue())
+            await websocket.send_text(text_to_send)

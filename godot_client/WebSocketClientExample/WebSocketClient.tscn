@@ -5,6 +5,7 @@
 
 [node name="WebSocketExample" type="Node"]
 script = ExtResource( 1 )
+api_key = "d43a900092ff364bc6e34cb1578f9eab"
 
 [node name="Group" type="Node2D" parent="."]
 position = Vector2( 245, 254 )
