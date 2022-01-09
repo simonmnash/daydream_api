@@ -2,14 +2,8 @@
 
 [ext_resource path="res://Login.gd" type="Script" id=1]
 
-[node name="Login" type="Panel"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-rect_min_size = Vector2( 512, 512 )
+[node name="Login" type="Node"]
 script = ExtResource( 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="CenterContainer" type="CenterContainer" parent="."]
 margin_right = 512.0
@@ -58,6 +52,8 @@ margin_bottom = 24.0
 rect_min_size = Vector2( 200, 0 )
 align = 1
 placeholder_text = "127.0.0.1"
+caret_blink = true
+caret_blink_speed = 0.5
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -82,6 +78,8 @@ rect_min_size = Vector2( 200, 0 )
 align = 1
 max_length = 4
 placeholder_text = "8000"
+caret_blink = true
+caret_blink_speed = 0.5
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -105,6 +103,8 @@ margin_bottom = 24.0
 rect_min_size = Vector2( 200, 0 )
 align = 1
 secret = true
+caret_blink = true
+caret_blink_speed = 0.5
 __meta__ = {
 "_edit_use_anchors_": false
 }

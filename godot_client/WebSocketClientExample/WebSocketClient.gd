@@ -2,12 +2,21 @@ extends Node
 
 # The URL we will connect to
 export var websocket_url = "ws://127.0.0.1:8000/generation_stream"
+export var generate_embeddings_endpoint: String
 export var api_key: String
 # Our WebSocketClient instance
 var _client = WebSocketClient.new()
 
+export var hostname: String
+export var port: String
+export var use_ssl: bool
 
 func _ready():
+	self.websocket_url = "ws://" + hostname + ":" + port + "/generation_stream"
+	if use_ssl:
+		self.generate_embeddings_endpoint = "https://" + hostname + ":" + port + "/generate_embeddings"
+	else:
+		self.generate_embeddings_endpoint = "http://" + hostname + ":" + port + "/generate_embeddings"
 	# Connect base signals to get notified of connection open, close, and errors.
 	_client.connect("connection_closed", self, "_closed")
 	_client.connect("connection_error", self, "_closed")
@@ -68,12 +77,24 @@ func _process(delta):
 	_client.poll()
 
 func _on_ConnectToSocket_toggled(button_pressed):
-	var err = _client.connect_to_url(websocket_url,  [], false, ["x-api-key: "  + self.api_key])
+	var err = _client.connect_to_url(self.websocket_url,  [], false, ["x-api-key: "  + self.api_key])
 	if err != OK:
 		print("Unable to connect")
 		set_process(false)
 
+func _on_NewImage_pressed():
+	$Group.add_new_image($Controls/NewPrompt.text)
 
 
-func _on_Image_selected(image_selected):
-	pass # Replace with function body.
+func _on_Group_image_selected(image):
+	$Controls/SavePrompt.text = image.prompt
+	for child in $Group.get_children():
+		child.get_node("Highlight").hide()
+	image.get_node("Highlight").show()
+	
+	var request = HTTPRequest.new()
+	var query = JSON.print({"prompt": image.prompt})
+	add_child(request)
+	var error = request.request(self.generate_embeddings_endpoint, ["Content-Type: application/json", "x-api-key: " + self.api_key], self.use_ssl, HTTPClient.METHOD_POST, query)
+	if error != OK:
+		push_error("An error occured in the HTTP request.")

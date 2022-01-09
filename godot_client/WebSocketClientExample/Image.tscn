@@ -16,4 +16,10 @@ show_behind_parent = true
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
 shape = SubResource( 1 )
 
+[node name="Highlight" type="Line2D" parent="."]
+visible = false
+points = PoolVector2Array( -64, -64, -64, 64, 64, 64, 64, -64, -64, -64 )
+width = 7.0
+default_color = Color( 0.219608, 1, 0, 0.145098 )
+
 [connection signal="input_event" from="Area2D" to="." method="_on_Area2D_input_event"]
