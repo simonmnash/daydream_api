@@ -1,5 +1,5 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException, Security, Depends, Form, WebSocket
-from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
+from fastapi.responses import HTMLResponse, JSONResponse, FileResponse, PlainTextResponse
 from fastapi.security.api_key import APIKeyHeader
 from vdiffusionwrapper import VDiffusion
 import config
@@ -82,6 +82,17 @@ async def create_upload_file(file: UploadFile = File(...)):
     with open(f"{IMAGEDIR}{file.filename}", "wb") as f:
         f.write(contents)
     return {"filename": file.filename}
+
+
+@app.post("/refreshimage", dependencies=[Depends(get_api_key)])
+async def refresh_upload_file(file: UploadFile = File(...)):
+    contents = await file.read()
+    input_buffer = BytesIO(contents)
+    files = app.diffusion_model.generation_stream(5, 5, 1, IMAGEDIR, init_image_path=input_buffer)
+    app.current_iteration_count += 1
+    text_to_send = base64.b64encode(files[0].getvalue())
+    return PlainTextResponse(text_to_send)
+
 
 @app.get("/health", dependencies=[Depends(get_api_key)])
 async def health():
