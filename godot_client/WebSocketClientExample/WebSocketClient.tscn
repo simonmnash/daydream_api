@@ -1,14 +1,19 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://WebSocketClientExample/WebSocketClient.gd" type="Script" id=1]
-[ext_resource path="res://WebSocketClientExample/Group.gd" type="Script" id=3]
+[ext_resource path="res://WebSocketClientExample/Group.tscn" type="PackedScene" id=2]
+[ext_resource path="res://WebSocketClientExample/Canvas.tscn" type="PackedScene" id=3]
 
 [node name="WebSocketExample" type="Node"]
 script = ExtResource( 1 )
+use_ssl = true
 
-[node name="Group" type="Node2D" parent="."]
-position = Vector2( 600, 450 )
-script = ExtResource( 3 )
+[node name="Group" parent="." instance=ExtResource( 2 )]
+
+[node name="Canvas" parent="." instance=ExtResource( 3 )]
+modulate = Color( 1, 1, 1, 0.188235 )
+show_behind_parent = true
+position = Vector2( 595, 456 )
 
 [node name="Controls" type="HBoxContainer" parent="."]
 margin_right = 1200.0
@@ -59,5 +64,5 @@ margin_right = 1200.0
 margin_bottom = 40.0
 text = "New"
 
-[connection signal="image_selected" from="Group" to="." method="_on_Group_image_selected"]
+[connection signal="fireaway" from="Canvas" to="." method="_on_Canvas_fireaway"]
 [connection signal="pressed" from="Controls/NewImage" to="." method="_on_NewImage_pressed"]

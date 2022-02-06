@@ -1,0 +1,210 @@
+[gd_scene load_steps=22 format=2]
+
+[ext_resource path="res://Canvas.gd" type="Script" id=1]
+
+[sub_resource type="RectangleShape2D" id=1]
+extents = Vector2( 600, 450 )
+
+[sub_resource type="Shader" id=10]
+code = "shader_type canvas_item;
+
+// Amount of detail.
+uniform int octaves = 4;
+
+// Opacity of the output fog.
+uniform float starting_amplitude: hint_range(0.0, 0.5) = 0.5;
+
+// Rate of pattern within the fog.
+uniform float starting_frequency = 1.0;
+
+// Shift towards transparency (clamped) for sparser fog.
+uniform float shift: hint_range(-1.0, 0.0) = -0.2;
+
+// Direction and speed of travel.
+uniform vec2 velocity = vec2(1.0, 1.0);
+
+// Color of the fog.
+uniform vec4 fog_color: hint_color = vec4(0.0, 0.0, 0.0, 1.0);
+
+// Noise texture; OpenSimplexNoise is great, but any filtered texture is fine.
+uniform sampler2D noise;
+
+float rand(vec2 uv) {
+	float amplitude = starting_amplitude;
+	float frequency = starting_frequency;
+	float output = 0.0;
+	for (int i = 0; i < octaves; i++) {
+		output += texture(noise, uv * frequency).x * amplitude;
+		amplitude /= 2.0;
+		frequency *= 2.0;
+	}
+	return clamp(output + shift, 0.0, 1.0);
+}
+
+void fragment() {
+	vec2 motion = vec2(rand(UV + TIME * starting_frequency * velocity * 0.1
+	));
+	COLOR = mix(vec4(0.0), fog_color, rand(UV + motion));
+}"
+
+[sub_resource type="OpenSimplexNoise" id=22]
+seed = 100
+
+[sub_resource type="NoiseTexture" id=23]
+seamless = true
+noise = SubResource( 22 )
+noise_offset = Vector2( 10, 100 )
+
+[sub_resource type="ShaderMaterial" id=11]
+shader = SubResource( 10 )
+shader_param/octaves = 10
+shader_param/starting_amplitude = 0.5
+shader_param/starting_frequency = 2.0
+shader_param/shift = -0.03
+shader_param/velocity = Vector2( 0.1, 0.1 )
+shader_param/fog_color = Color( 0.0901961, 1, 0.0392157, 1 )
+shader_param/noise = SubResource( 23 )
+
+[sub_resource type="Gradient" id=15]
+
+[sub_resource type="GradientTexture" id=16]
+gradient = SubResource( 15 )
+width = 800
+
+[sub_resource type="OpenSimplexNoise" id=24]
+seed = 50
+
+[sub_resource type="NoiseTexture" id=25]
+seamless = true
+noise = SubResource( 24 )
+
+[sub_resource type="ShaderMaterial" id=14]
+shader = SubResource( 10 )
+shader_param/octaves = 4
+shader_param/starting_amplitude = 0.5
+shader_param/starting_frequency = 1.0
+shader_param/shift = -0.2
+shader_param/velocity = Vector2( 0.1, 0.1 )
+shader_param/fog_color = Color( 0.862745, 0.0588235, 0.211765, 1 )
+shader_param/noise = SubResource( 25 )
+
+[sub_resource type="Gradient" id=17]
+
+[sub_resource type="GradientTexture" id=18]
+gradient = SubResource( 17 )
+width = 800
+
+[sub_resource type="Shader" id=8]
+code = "shader_type canvas_item;
+
+// Amount of detail.
+uniform int octaves = 4;
+
+// Opacity of the output fog.
+uniform float starting_amplitude: hint_range(0.0, 0.5) = 0.5;
+
+// Rate of pattern within the fog.
+uniform float starting_frequency = 1.0;
+
+// Shift towards transparency (clamped) for sparser fog.
+uniform float shift: hint_range(-1.0, 0.0) = -0.2;
+
+// Direction and speed of travel.
+uniform vec2 velocity = vec2(1.0, 1.0);
+
+// Color of the fog.
+uniform vec4 fog_color: hint_color = vec4(0.0, 0.0, 0.0, 1.0);
+
+// Noise texture; OpenSimplexNoise is great, but any filtered texture is fine.
+uniform sampler2D noise;
+
+float rand(vec2 uv) {
+	float amplitude = starting_amplitude;
+	float frequency = starting_frequency;
+	float output = 0.0;
+	for (int i = 0; i < octaves; i++) {
+		output += texture(noise, uv * frequency).x * amplitude;
+		amplitude /= 2.0;
+		frequency *= 2.0;
+	}
+	return clamp(output + shift, 0.0, 1.0);
+}
+
+void fragment() {
+	vec2 motion = vec2(rand(UV + TIME * starting_frequency * velocity));
+	COLOR = mix(vec4(0.0), fog_color, rand(UV + motion));
+}"
+
+[sub_resource type="OpenSimplexNoise" id=19]
+period = 134.6
+persistence = 0.689
+lacunarity = 2.36
+
+[sub_resource type="NoiseTexture" id=20]
+width = 500
+height = 500
+seamless = true
+noise = SubResource( 19 )
+noise_offset = Vector2( 60, 100 )
+
+[sub_resource type="ShaderMaterial" id=21]
+shader = SubResource( 8 )
+shader_param/octaves = 4
+shader_param/starting_amplitude = 0.5
+shader_param/starting_frequency = 1.0
+shader_param/shift = -0.2
+shader_param/velocity = Vector2( -0.05, -0.05 )
+shader_param/fog_color = Color( 0, 0, 1, 1 )
+shader_param/noise = SubResource( 20 )
+
+[sub_resource type="Gradient" id=2]
+
+[sub_resource type="GradientTexture" id=3]
+gradient = SubResource( 2 )
+width = 1200
+
+[sub_resource type="Gradient" id=26]
+
+[sub_resource type="GradientTexture" id=27]
+gradient = SubResource( 26 )
+
+[node name="Canvas" type="Area2D"]
+z_index = 10
+script = ExtResource( 1 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+z_index = 15
+z_as_relative = false
+shape = SubResource( 1 )
+
+[node name="Sprite2" type="Sprite" parent="."]
+modulate = Color( 1, 1, 1, 0.635294 )
+show_behind_parent = true
+material = SubResource( 11 )
+position = Vector2( -6.99997, -2 )
+scale = Vector2( 2.36328, 900 )
+texture = SubResource( 16 )
+
+[node name="Sprite3" type="Sprite" parent="."]
+show_behind_parent = true
+material = SubResource( 14 )
+position = Vector2( -6.99997, -6.00002 )
+scale = Vector2( 2.36328, 902 )
+texture = SubResource( 18 )
+
+[node name="Sprite" type="Sprite" parent="."]
+modulate = Color( 1, 1, 1, 0.768627 )
+show_behind_parent = true
+material = SubResource( 21 )
+position = Vector2( 0, -3.99998 )
+scale = Vector2( 1, 900 )
+texture = SubResource( 3 )
+
+[node name="Light2D" type="Light2D" parent="."]
+show_behind_parent = true
+position = Vector2( 157, 243 )
+rotation = 0.785398
+scale = Vector2( 1.146, 1679.24 )
+texture = SubResource( 27 )
+
+[connection signal="input_event" from="." to="." method="_on_Canvas_input_event"]

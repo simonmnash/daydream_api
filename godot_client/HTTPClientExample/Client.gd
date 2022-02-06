@@ -11,7 +11,7 @@ var generate_images_endpoint = ""
 
 func _http_request_completed(result, response_code, headers, body):
 	var response = body.get_string_from_utf8()
-	queue_new_image_generation()
+	#queue_new_image_generation()
 
 func _images_generated(result, response_code, headers, body):
 	var RandomImageScene = load("res://HTTPClientExample/RandomImage.tscn")
@@ -39,9 +39,12 @@ func _ready():
 
 func _on_GenerateEmbeddings_pressed():
 	var request = HTTPRequest.new()
-	var query = JSON.print({"prompt": "Rose"})
+	var query = JSON.print({"prompt": $MarginContainer/VBoxContainer/EmbeddingGeneration/Prompt.text,
+							"start": $MarginContainer/VBoxContainer/EmbeddingGeneration/Start.text,
+							"end": $MarginContainer/VBoxContainer/EmbeddingGeneration/More.text})
 	add_child(request)
 	request.connect("request_completed", self, "_http_request_completed")
+	print(self.generate_embeddings_endpoint)
 	var error = request.request(self.generate_embeddings_endpoint, ["Content-Type: application/json", "x-api-key: " + api_key], self.use_ssl, HTTPClient.METHOD_POST, query)
 	if error != OK:
 		push_error("An error occured in the HTTP request.")
@@ -54,3 +57,18 @@ func queue_new_image_generation():
 	var error = request.request(self.generate_images_endpoint, ["Content-Type: application/json", "x-api-key: " + api_key], self.use_ssl, HTTPClient.METHOD_POST, query)
 	if error != OK:
 		push_error("An error occured in the HTTP request.")
+
+
+func _on_Canvas_fireaway(buffer, position):
+	var RandomImageScene = load("res://HTTPClientExample/RandomImage.tscn")
+	var new_scene = RandomImageScene.instance()
+	new_scene.controller = self
+	var image = Image.new()
+	image.load_png_from_buffer(buffer)
+	var imagetexture = ImageTexture.new()
+	imagetexture.create_from_image(image, 0)
+	new_scene.texture = imagetexture
+	new_scene.position = position + Vector2(64, 64)
+	print(new_scene.position)
+	$Group.add_child(new_scene)
+	
