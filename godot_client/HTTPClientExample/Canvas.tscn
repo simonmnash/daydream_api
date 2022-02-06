@@ -1,6 +1,6 @@
 [gd_scene load_steps=22 format=2]
 
-[ext_resource path="res://Canvas.gd" type="Script" id=1]
+[ext_resource path="res://HTTPClientExample/Canvas.gd" type="Script" id=1]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 600, 450 )
@@ -69,7 +69,7 @@ shader_param/noise = SubResource( 23 )
 
 [sub_resource type="GradientTexture" id=16]
 gradient = SubResource( 15 )
-width = 800
+width = 600
 
 [sub_resource type="OpenSimplexNoise" id=24]
 seed = 50
@@ -92,7 +92,7 @@ shader_param/noise = SubResource( 25 )
 
 [sub_resource type="GradientTexture" id=18]
 gradient = SubResource( 17 )
-width = 800
+width = 600
 
 [sub_resource type="Shader" id=8]
 code = "shader_type canvas_item;
@@ -161,7 +161,7 @@ shader_param/noise = SubResource( 20 )
 
 [sub_resource type="GradientTexture" id=3]
 gradient = SubResource( 2 )
-width = 1200
+width = 600
 
 [sub_resource type="Gradient" id=26]
 
@@ -182,14 +182,14 @@ modulate = Color( 1, 1, 1, 0.635294 )
 show_behind_parent = true
 material = SubResource( 11 )
 position = Vector2( -6.99997, -2 )
-scale = Vector2( 2.36328, 900 )
+scale = Vector2( 2, 1000 )
 texture = SubResource( 16 )
 
 [node name="Sprite3" type="Sprite" parent="."]
 show_behind_parent = true
 material = SubResource( 14 )
 position = Vector2( -6.99997, -6.00002 )
-scale = Vector2( 2.36328, 902 )
+scale = Vector2( 2, 1000 )
 texture = SubResource( 18 )
 
 [node name="Sprite" type="Sprite" parent="."]
@@ -197,14 +197,14 @@ modulate = Color( 1, 1, 1, 0.768627 )
 show_behind_parent = true
 material = SubResource( 21 )
 position = Vector2( 0, -3.99998 )
-scale = Vector2( 1, 900 )
+scale = Vector2( 2, 1000 )
 texture = SubResource( 3 )
 
 [node name="Light2D" type="Light2D" parent="."]
 show_behind_parent = true
-position = Vector2( 157, 243 )
+position = Vector2( 84.0053, -113.995 )
 rotation = 0.785398
-scale = Vector2( 1.146, 1679.24 )
+scale = Vector2( 2.81019, 5735.21 )
 texture = SubResource( 27 )
 
 [connection signal="input_event" from="." to="." method="_on_Canvas_input_event"]

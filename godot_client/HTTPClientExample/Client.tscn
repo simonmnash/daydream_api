@@ -1,8 +1,7 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://HTTPClientExample/Client.gd" type="Script" id=1]
-[ext_resource path="res://WebSocketClientExample/Canvas.tscn" type="PackedScene" id=2]
-[ext_resource path="res://WebSocketClientExample/Group.tscn" type="PackedScene" id=3]
+[ext_resource path="res://HTTPClientExample/Canvas.tscn" type="PackedScene" id=2]
 
 [node name="Client" type="Panel"]
 margin_right = 512.0
@@ -17,14 +16,13 @@ use_ssl = true
 [node name="Canvas" parent="." instance=ExtResource( 2 )]
 position = Vector2( 600, 450 )
 z_as_relative = false
-
-[node name="Group" parent="." instance=ExtResource( 3 )]
-position = Vector2( 0, 0 )
+debug = true
 
 [node name="MarginContainer" type="CenterContainer" parent="."]
+visible = false
 margin_left = 3.0
 margin_top = -1.0
-margin_right = 388.0
+margin_right = 484.0
 margin_bottom = 23.0
 rect_min_size = Vector2( 0, 24 )
 mouse_filter = 1
@@ -74,6 +72,8 @@ margin_left = 328.0
 margin_right = 481.0
 margin_bottom = 24.0
 text = "Generate Embeddings"
+
+[node name="Group" type="Node2D" parent="."]
 
 [connection signal="fireaway" from="Canvas" to="." method="_on_Canvas_fireaway"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/EmbeddingGeneration/GenerateEmbeddings" to="." method="_on_GenerateEmbeddings_pressed"]

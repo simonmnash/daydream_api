@@ -1,7 +1,7 @@
 extends Node
 
 const client = preload("res://HTTPClientExample/Client.tscn")
-const websocket_client = preload("res://WebSocketClientExample/WebSocketClient.tscn")
+const websocket_client = preload("res://HTTPClientExample/Client.tscn")
 
 func _ready():
 	pass # Replace with function body.
@@ -16,4 +16,3 @@ func _on_Connect_pressed():
 	new_client.api_key = key
 	$CenterContainer.hide()
 	self.add_child(new_client)
-	

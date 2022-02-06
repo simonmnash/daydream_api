@@ -17,7 +17,8 @@ config/icon="res://icon.png"
 [display]
 
 window/size/width=1200
-window/size/height=900
+window/stretch/mode="viewport"
+window/stretch/aspect="keep_width"
 
 [physics]
 
