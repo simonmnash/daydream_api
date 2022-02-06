@@ -12,7 +12,7 @@ Currently there are three things in this repo:
 
 2) A minimal example Godot client, where clicking on a canvas of shifting colors sends an image chunk to the server, does some clip guided diffusion, and sends the result back to superimpose over the canvas.
 
-) A not-quite-working-yet Krita plugin client.
+3) A not-quite-working-yet Krita plugin client.
 
 Daydream is built with the assumption that the server is being operated by the same person using the client, and that only one client will be using the server.
 
