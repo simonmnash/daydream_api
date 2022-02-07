@@ -179,7 +179,6 @@ margin_top = 64.0
 margin_right = 500.0
 margin_bottom = 97.0
 rect_min_size = Vector2( 500, 0 )
-secret = true
 placeholder_text = "Enter Your API Key"
 
 [node name="TextureRect" type="TextureRect" parent="CenterContainer/VBoxContainer3"]
