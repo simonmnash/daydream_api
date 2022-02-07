@@ -23,7 +23,8 @@ func _on_Connect_pressed():
 func _on_Webconnect_pressed():
 	var new_client = websocket_client.instance()
 	new_client.hostname = default_host
-	new_client.port = default_port
+	new_client.port = ""
 	new_client.api_key = $CenterContainer/VBoxContainer3/LineEdit.text
 	$CenterContainer.hide()
+	$ShowCanvas.hide()
 	self.add_child(new_client)
