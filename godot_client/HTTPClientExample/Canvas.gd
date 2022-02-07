@@ -5,13 +5,13 @@ var dragging = false
 var drag_start = Vector2.ZERO
 
 var rectangle = Rect2()
-var rectangle_size = Vector2(32, 32)
+var rectangle_size = Vector2(128, 128)
 var avaliable_sizes = [Vector2(32, 32),
 					   Vector2(64, 64),
 					   Vector2(128, 128),
 					   Vector2(256, 256),
 					   Vector2(512, 512)]
-var size_index = 0
+var size_index = 2
 var current_selection_buffer = null
 export var debug = false
 
@@ -25,13 +25,15 @@ func _on_Canvas_input_event(viewport, event, shape_idx):
 	if event is InputEventMouseButton:
 		if event.pressed:
 			if event.button_index == BUTTON_WHEEL_UP:
-				self.size_index += 1
-				self.size_index = self.size_index % (len(avaliable_sizes)) 
-				self.rectangle_size = avaliable_sizes[self.size_index]
-			elif event.button_index == BUTTON_WHEEL_DOWN:
-				self.size_index -= 1
-				self.size_index = self.size_index % (len(avaliable_sizes))
-				self.rectangle_size = avaliable_sizes[self.size_index]
+				pass
+			#if event.button_index == BUTTON_WHEEL_UP:
+			#	self.size_index += 1
+			#	self.size_index = self.size_index % (len(avaliable_sizes)) 
+			#	self.rectangle_size = avaliable_sizes[self.size_index]
+			#elif event.button_index == BUTTON_WHEEL_DOWN:
+			#	self.size_index -= 1
+			#	self.size_index = self.size_index % (len(avaliable_sizes))
+			#	self.rectangle_size = avaliable_sizes[self.size_index]
 			else:
 				var rect_pos = (get_viewport_transform() * (get_global_transform() * rectangle.position))
 				rectangle = Rect2(0, 0, 0, 0)
