@@ -1,5 +1,5 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException, Security, Depends, WebSocket
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import PlainTextResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.security.api_key import APIKeyHeader
 from vdiffusionwrapper import VDiffusion
@@ -65,5 +65,20 @@ async def refresh_upload_file(file: UploadFile = File(...)):
     app.current_iteration_count += 1
     text_to_send = base64.b64encode(files[0].getvalue())
     return PlainTextResponse(text_to_send)
+
+@app.post("/refreshlayer", dependencies=[Depends(get_api_key)])
+async def refreshlayer(file: UploadFile = File(...)):
+    contents = await file.read()
+    input_buffer = BytesIO(contents)
+    files = app.diffusion_model.generation_stream(app.start, app.end, 1, IMAGEDIR, init_image_path=input_buffer)
+    app.current_iteration_count += 1
+    #text_to_send = base64.b64encode(files[0].getvalue())
+    return FileResponse(files[0])
+
+@app.post("/newlayer", dependencies=[Depends(get_api_key)])
+async def newlayer(data: PromptData):
+    app.diffusion_model.clip_embed = app.diffusion_model.prepare_embeddings(prompts=[data.prompt], images=[])
+    files = app.diffusion_model.generation_stream(0, data.end, 1, IMAGEDIR, init_image_path=None)
+    return FileResponse(files[0])
 
 app.mount("/", StaticFiles(directory="static",html = True), name="static")
