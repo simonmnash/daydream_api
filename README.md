@@ -16,3 +16,6 @@ Currently there are three things in this repo:
 
 Daydream is built with the assumption that the server is being operated by the same person using the client, and that only one client will be using the server.
 
+![Result from a Krita Client](https://github.com/simonmnash/daydream_api/blob/main/examples/carefreedragonintheskyabovethemossystoneroccoco.png)
+
+A result from the krita client that didn't invove any human interaction except prompting. Still working on getting some human interacting into the krita client.
