@@ -8,7 +8,7 @@ from io import BytesIO
 from functools import lru_cache
 from pydantic import BaseModel
 import base64
-
+import os 
 api_key_header_auth = APIKeyHeader(name='x-api-key')
 
 @lru_cache()
@@ -77,8 +77,10 @@ async def refreshlayer(file: UploadFile = File(...)):
 
 @app.post("/newlayer", dependencies=[Depends(get_api_key)])
 async def newlayer(data: PromptData):
-    app.diffusion_model.clip_embed = app.diffusion_model.prepare_embeddings(prompts=[data.prompt], images=[])
-    files = app.diffusion_model.generation_stream(0, data.end, 1, IMAGEDIR, init_image_path=None)
-    return FileResponse(files[0])
+    print(data)
+    images = os.listdir(IMAGEDIR)
+    app.diffusion_model.clip_embed = app.diffusion_model.prepare_embeddings(prompts=[data.prompt], images=images)
+    new_file = app.diffusion_model.run_all(data.end, starting_timestamp=0.0, output_directory=IMAGEDIR)
+    return FileResponse(f'{IMAGEDIR}/{new_file}')
 
 app.mount("/", StaticFiles(directory="static",html = True), name="static")
