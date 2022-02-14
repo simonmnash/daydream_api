@@ -3,7 +3,7 @@ from vdiffusionpytorch.CLIP import clip
 from torchvision import transforms
 from functools import partial
 from pathlib import Path
-
+import hashlib
 from PIL import Image
 from torch import nn
 from torch.nn import functional as F
@@ -68,8 +68,8 @@ class VDiffusion:
                  clip_guidance_scale=500,
                  cutn = 16,
                  cutpow = 1,
-                 side_x = 128,
-                 side_y = 128
+                 side_x = 512,
+                 side_y = 512
                 ):
         self.device = DEVICE
         self.cutn = cutn
@@ -83,7 +83,8 @@ class VDiffusion:
         self.eta = 1
         self.clip_embed = None
         self.clip_guidance_scale = clip_guidance_scale
-
+        self.prompt_hash = ""
+        
     def load_model(self, MODEL = "cc12m_1"):
         model = get_model(MODEL)()
         checkpoint = MODULE_DIR / f'vdiffusionpytorch/checkpoints/{MODEL}.pth'
@@ -104,20 +105,23 @@ class VDiffusion:
 
     def prepare_embeddings(self, prompts, images):
         target_embeds, weights = [], []
+        self.prompt_hash = hashlib.md5("whatever your string is".encode('utf-8')).hexdigest()
         for prompt in prompts:
             txt, weight = parse_prompt(prompt)
             target_embeds.append(self.clip_model.encode_text(clip.tokenize(txt).to(self.device)).float())
             weights.append(weight)
 
         for prompt in images:
-            path, weight = parse_prompt(prompt)
-            img = Image.open(utils.fetch(path)).convert('RGB')
-            img = TF.resize(img, min(self.side_x, self.side_y, *img.size),
+            if prompt[0] != ".":
+                #path, weight = parse_prompt(prompt)
+                path = f'files/{prompt}'
+                img = Image.open(utils.fetch(path)).convert('RGB')
+                img = TF.resize(img, min(self.side_x, self.side_y, *img.size),
                             transforms.InterpolationMode.LANCZOS)
-            batch = self.make_cutouts(TF.to_tensor(img)[None].to(self.device))
-            embeds = F.normalize(self.clip_model.encode_image(NORMALIZE(batch)).float(), dim=-1)
-            target_embeds.append(embeds)
-            weights.extend([weight / self.cutn] * self.cutn)
+                batch = self.make_cutouts(TF.to_tensor(img)[None].to(self.device))
+                embeds = F.normalize(self.clip_model.encode_image(NORMALIZE(batch)).float(), dim=-1)
+                target_embeds.append(embeds)
+                weights.extend([weight / self.cutn] * self.cutn)
         target_embeds = torch.cat(target_embeds)
         weights = torch.tensor(weights, device=self.device)
         weights /= weights.sum().abs()
@@ -150,7 +154,6 @@ class VDiffusion:
             pass
         else:
             os.mkdir(output_directory)
-
         x = torch.randn([self.num_outputs, 3, self.side_y, self.side_x], device=self.device)
         t = torch.linspace(1, 0, total_steps + 1, device=self.device)[:-1]
         steps = utils.get_spliced_ddpm_cosine_schedule(t)
@@ -163,8 +166,9 @@ class VDiffusion:
             cur_batch_size = min(self.num_outputs - i, batch_size)
             outs = self.run(x[i:i+cur_batch_size], steps, self.clip_embed[i:i+cur_batch_size])
             for j, out in enumerate(outs):
-                utils.to_pil_image(out).save(os.path.join(output_directory, f'out_{i + j:05}.png'))
-        return os.listdir(output_directory)
+                most_recent_file_name = f'out_{self.prompt_hash}_{i + j:05}.png'
+                utils.to_pil_image(out).save(os.path.join(output_directory, f'out_{self.prompt_hash}_{i + j:05}.png'))
+        return most_recent_file_name
 
     def build_on(self, starting_iterations, additional_iterations, batch_size=1, output_directory=None, init_image_path=None):
         '''
